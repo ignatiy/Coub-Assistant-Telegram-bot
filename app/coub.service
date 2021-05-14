@@ -1,13 +1,13 @@
 [Unit]
-Description=uWSGI instance to Coub Assistant Telegram bot
+Description=Instance to Coub Assistant Telegram bot
 After=network.target
 
 [Service]
-User=sysadmin2
-Group=sysadmin2
 WorkingDirectory=/media/sysadmin2/Data/Project/Coub-Assistant-Telegram-bot/app
 Environment="PATH=/media/sysadmin2/Data/Project/Coub-Assistant-Telegram-bot/env/bin"
-ExecStart=/media/sysadmin2/Data/Project/Coub-Assistant-Telegram-bot/env/bin/uwsgi --ini app.ini
+ExecStart=/media/sysadmin2/Data/Project/Coub-Assistant-Telegram-bot/env/bin/python3 main.py
+Type=simple
+User=root
 
 [Install]
 WantedBy=multi-user.target
