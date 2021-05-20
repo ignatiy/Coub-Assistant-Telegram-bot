@@ -1,16 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import config
 import time
+from random import choice
+
 import validators
 import robobrowser
-from random import choice
 from werkzeug.utils import cached_property
 from telegram import Bot, Update, User, Message
 from telegram.ext import CommandHandler, Updater, MessageHandler, CallbackContext, Filters
 from telegram.utils.request import Request
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from python_rucaptcha import ReCaptchaV3
+
+import config
 
 def log_errors(f):
     def inner(*args, **kwargs):
@@ -23,29 +26,39 @@ def log_errors(f):
     return inner
 
 @log_errors
-def start(update, context): # срабатывает на команду /start в телеграм чате
+def start(update, context):
 	update.message.reply_text("Вставьте URL из Coub")
 
 @log_errors
 def coub_scraper(update, context):
-	USERAGENT = open("useragents.txt").read().split("\n")
-	text_message = update.message.text
 
-	if not validators.url(text_message):
-		update.message.reply_text("Пожалуйста введите ссылку на Coub!")
-	else:
+	answer_usual_re3_f = ReCaptchaV3.ReCaptchaV3(
+		rucaptcha_key=config.RUCAPTCHA_KEY,
+		action=config.ACTION,
+		min_score=config.MIN_SCORE).captcha_handler(site_key=config.SITE_KEY, page_url=config.PAGE_URL)
 
-		browser = robobrowser.RoboBrowser(
-				user_agent=choice(USERAGENT), 
-				parser='lxml'
-			)
-		browser.open(config.url)
-		form = browser.get_form(action="/ru/web")
-		form['url'].value = text_message
-		browser.submit_form(form)
+	if not answer_usual_re3_f["error"]:
+		USERAGENT = open("useragents.txt").read().split("\n")
+		text_message = update.message.text
 
-		for tag in browser.select('h3'):
-			update.message.reply_text(tag.text)
+		if not validators.url(text_message):
+			update.message.reply_text("Пожалуйста введите ссылку на Coub!")
+		else:
+
+			browser = robobrowser.RoboBrowser(
+					user_agent=choice(USERAGENT), 
+					parser='lxml'
+				)
+			browser.open(config.PAGE_URL)
+			form = browser.get_form(action="/ru/web")
+			form['url'].value = text_message
+			form['token'].value = answer_usual_re3_f["captchaSolve"]
+			browser.submit_form(form)
+
+			for tag in browser.select('h3'):
+				update.message.reply_text(tag.text)
+	elif answer_usual_re3_f["error"]:
+		update.message.reply_text("Что-то пошло не так..")
 	
 def main():
 	request = Request(
@@ -54,8 +67,8 @@ def main():
 		)
 	bot = Bot(
 			request=request, 
-			token=config.token, 
-			base_url=config.proxy #Подготовка прокси на случай блокировки ТГ. В конфиге поменять ссылку на прокси сервер
+			token=config.TOKEN, 
+			base_url=config.PROXY
 		)
 	updater = Updater(
 			bot=bot, 
