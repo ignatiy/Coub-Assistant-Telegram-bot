@@ -38,7 +38,7 @@ def coub_scraper(update, context):
 		min_score=config.MIN_SCORE).captcha_handler(site_key=config.SITE_KEY, page_url=config.PAGE_URL)
 
 	if not answer_usual_re3_f["error"]:
-		USERAGENT = open("useragents.txt").read().split("\n")
+		# USERAGENT = open("headers/user-agent.txt").read().split("\n")
 		text_message = update.message.text
 
 		if not validators.url(text_message):
@@ -46,7 +46,7 @@ def coub_scraper(update, context):
 		else:
 
 			browser = robobrowser.RoboBrowser(
-					user_agent=choice(USERAGENT), 
+					user_agent=config.USERAGENT, 
 					parser='lxml'
 				)
 			browser.open(config.PAGE_URL)
