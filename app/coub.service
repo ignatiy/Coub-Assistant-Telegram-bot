@@ -3,9 +3,9 @@ Description=Instance to Coub Assistant Telegram bot
 After=network.target
 
 [Service]
-WorkingDirectory=/media/sysadmin2/Data/Project/Coub-Assistant-Telegram-bot/app
-Environment="PATH=/media/sysadmin2/Data/Project/Coub-Assistant-Telegram-bot/env/bin"
-ExecStart=/media/sysadmin2/Data/Project/Coub-Assistant-Telegram-bot/env/bin/python3 main.py
+WorkingDirectory=/media/hdd/Project/Coub-Assistant-Telegram-bot/app
+Environment="PATH=/media/hdd/Project/Coub-Assistant-Telegram-bot/env/bin"
+ExecStart=/media/hdd/Project/Coub-Assistant-Telegram-bot/env/bin/python3 main.py
 Type=simple
 User=root
 

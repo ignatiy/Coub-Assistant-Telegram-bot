@@ -2,16 +2,15 @@
 # -*- coding: utf-8 -*-
 
 import time
-from random import choice
 
 import validators
-import robobrowser
-from werkzeug.utils import cached_property
+from selenium import webdriver
+from bs4 import BeautifulSoup
+# from werkzeug.utils import cached_property
 from telegram import Bot, Update, User, Message
 from telegram.ext import CommandHandler, Updater, MessageHandler, CallbackContext, Filters
 from telegram.utils.request import Request
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from python_rucaptcha import ReCaptchaV3
 
 import config
 
@@ -31,35 +30,35 @@ def start(update, context):
 
 @log_errors
 def coub_scraper(update, context):
+	text_message = update.message.text
 
-	answer_usual_re3_f = ReCaptchaV3.ReCaptchaV3(
-		rucaptcha_key=config.RUCAPTCHA_KEY,
-		action=config.ACTION,
-		min_score=config.MIN_SCORE).captcha_handler(site_key=config.SITE_KEY, page_url=config.PAGE_URL)
+	if not validators.url(text_message):
+		update.message.reply_text("Пожалуйста введите ссылку на Coub!")
+	else:
+		options = webdriver.ChromeOptions()
+		options.add_argument(config.USERAGENT)
+		options.add_experimental_option("excludeSwitches", ["enable-automation"])
+		options.add_experimental_option("useAutomationExtension", False)
+		options.add_argument("--disable-blink-features=AutomationControlled")
+		options.headless = True
 
-	if not answer_usual_re3_f["error"]:
-		# USERAGENT = open("headers/user-agent.txt").read().split("\n")
-		text_message = update.message.text
-
-		if not validators.url(text_message):
-			update.message.reply_text("Пожалуйста введите ссылку на Coub!")
+		driver = webdriver.Chrome(executable_path=config.DRIVERS, options=options)
+		driver.get(config.PAGE_URL)
+		form = driver.find_element_by_xpath("//input[@placeholder='Вставьте URL из Coub']").send_keys(text_message)
+		time.sleep(1.49)
+		button = driver.find_element_by_xpath("//input[@value='Искать']").click()
+		time.sleep(1.05)
+		res = driver.page_source
+		
+		soup = BeautifulSoup(res, 'lxml').select('h3')[0].get_text()
+		
+		if not soup:
+			update.message.reply_text("Что-то пошло не так")
+			driver.close()
 		else:
+			update.message.reply_text(soup)
+			driver.close()
 
-			browser = robobrowser.RoboBrowser(
-					user_agent=config.USERAGENT, 
-					parser='lxml'
-				)
-			browser.open(config.PAGE_URL)
-			form = browser.get_form(action="/ru/web")
-			form['url'].value = text_message
-			form['token'].value = answer_usual_re3_f["captchaSolve"]
-			browser.submit_form(form)
-
-			for tag in browser.select('h3'):
-				update.message.reply_text(tag.text)
-	elif answer_usual_re3_f["error"]:
-		update.message.reply_text("Что-то пошло не так..")
-	
 def main():
 	request = Request(
 			connect_timeout=0.5, 
