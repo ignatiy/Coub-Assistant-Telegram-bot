@@ -45,9 +45,9 @@ def coub_scraper(update, context):
 		driver = webdriver.Chrome(executable_path=config.DRIVERS, options=options)
 		driver.get(config.PAGE_URL)
 		form = driver.find_element_by_xpath("//input[@placeholder='Вставьте URL из Coub']").send_keys(text_message)
-		time.sleep(1.49)
+		time.sleep(1.58)
 		button = driver.find_element_by_xpath("//input[@value='Искать']").click()
-		time.sleep(1.05)
+		time.sleep(1.15)
 		res = driver.page_source
 		
 		soup = BeautifulSoup(res, 'lxml').select('h3')[0].get_text()
@@ -55,9 +55,11 @@ def coub_scraper(update, context):
 		if not soup:
 			update.message.reply_text("Что-то пошло не так")
 			driver.close()
+			driver.quit()
 		else:
 			update.message.reply_text(soup)
 			driver.close()
+			driver.quit()
 
 def main():
 	request = Request(
