@@ -5,7 +5,7 @@ After=network.target
 [Service]
 WorkingDirectory=/media/hdd/Project/Coub-Assistant-Telegram-bot/app
 Environment="PATH=/media/hdd/Project/Coub-Assistant-Telegram-bot/env/bin"
-ExecStart=/media/hdd/Project/Coub-Assistant-Telegram-bot/env/bin/python3 main.py
+ExecStart=/media/hdd/Project/Coub-Assistant-Telegram-bot/env/bin/python3.6 main.py
 Type=simple
 User=root
 
