@@ -12,10 +12,11 @@ PAGE_URL = "https://coubassistant.com/"
 TOKEN = "1762361955:AAG2hiIZ9Bw7xYK5jm3yMyrbz8rrNMO2ufU"
 # url api telegram или на прокси сервер
 PROXY = "https://api.telegram.org/bot"
+# Базовая директория проекта
+BASE_DIR = Path(__file__).resolve().parent
 # Пользовательский агент
-PATH_HEADERS = Path(Path.cwd(), 'headers', 'user-agent.txt')
-USERAGENT = choice(open(f'{PATH_HEADERS}').read().split("\n")) if os.path.isfile(f'{PATH_HEADERS}') else 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
+PATH_HEADERS = BASE_DIR / 'headers' / 'user-agent.txt'
+USERAGENT = choice(PATH_HEADERS.read_text().splitlines()) if PATH_HEADERS.is_file() else 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
 # cromedriver
-PATH_DRIVERS = Path(Path.cwd(), 'drivers', 'chromedriver')
-DRIVERS = PATH_DRIVERS if os.path.isfile(f'{PATH_DRIVERS}') else os.path.abspath('/media/hdd/Project/Coub-Assistant-Telegram-bot/app/drivers/chromedriver')
-print(DRIVERS)
+PATH_DRIVERS = BASE_DIR / 'drivers' / 'chromedriver'
+DRIVERS = PATH_DRIVERS if PATH_DRIVERS.is_file() else os.path.abspath('/media/hdd/Project/Coub-Assistant-Telegram-bot/app/drivers/chromedriver')
