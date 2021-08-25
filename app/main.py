@@ -47,7 +47,7 @@ def coub_scraper(update, context):
 		driver.get(config.PAGE_URL)
 		form = driver.find_element_by_xpath("//input[@placeholder='Вставьте URL из Coub']").send_keys(text_message)
 		time.sleep(1.58)
-		button = driver.find_element_by_xpath("//input[@value='Искать']").click()
+		button = driver.find_element_by_xpath("//input[@class='search_box_submit']").click()
 		time.sleep(1.15)
 		res = driver.page_source
 		
